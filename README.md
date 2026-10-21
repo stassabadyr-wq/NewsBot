@@ -58,9 +58,3 @@ Telegram-бот на Python: сам ищет свежие новости по к
 ## Автор
 
 Stanislav Sabadyr
-'@ | Set-Content -Path README.md -Encoding utf8
-
-git add -A
-git status
-git commit -m "Update README"
-git push
