@@ -37,3 +37,5 @@ TOKEN_OVERLAP_THRESHOLD = 0.6  # доля общих значимых слов �
 
 MAX_POSTS_PER_RUN = 2     # максимум публикаций за один запуск
 POST_DELAY_SECONDS = 3    # пауза между сообщениями в канал
+
+MYMEMORY_EMAIL = os.getenv("MYMEMORY_EMAIL", "").strip()
