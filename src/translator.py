@@ -37,7 +37,7 @@ def translate(text: str, target: str) -> str:
     if not text:
         return ""
     source = "en" if target == "ru" else "ru"
-    for engine in (_google, _mymemory):
+    for engine in (_mymemory, _google):
         try:
             result = engine(text, source, target).strip()
             if result:

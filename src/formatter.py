@@ -12,12 +12,25 @@ def _short(desc: str) -> str:
     return desc
 
 
+def _norm(s: str) -> str:
+    return s.lower().strip(" .!?:-")
+
+
+def _clean_desc(a: Article) -> str:
+    """Описание без дубля заголовка (GNews иногда отдаёт заголовок как описание)."""
+    d = a.description.strip()
+    t = _norm(a.title)
+    if not d or _norm(d) == t or (t and _norm(d).startswith(t)):
+        return ""
+    return _short(d)
+
+
 def format_article(a: Article, translation=None, lang: str | None = None) -> str:
     """Заголовок жирным, описание, ссылка (HTML для Telegram).
 
     translation = (язык_перевода, заголовок, описание); lang = язык оригинала.
     """
-    desc = _short(a.description)
+    desc = _clean_desc(a)
     link = f'<a href="{escape(a.url, quote=True)}">{escape(a.source or "Источник")}</a>'
 
     if translation is None:
@@ -45,5 +58,5 @@ def build_text(a: Article) -> str:
     t_title = translate(a.title, target)
     if not t_title:
         return format_article(a)
-    t_desc = translate(_short(a.description), target)
+    t_desc = translate(_clean_desc(a), target)
     return format_article(a, translation=(target, t_title, t_desc), lang=lang)
