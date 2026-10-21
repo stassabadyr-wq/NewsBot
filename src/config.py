@@ -22,3 +22,13 @@ SEARCH_QUERIES = {
     "en": '"artificial intelligence" OR Python OR cybersecurity OR OpenAI',
 }
 MAX_ARTICLES_PER_REQUEST = 10
+
+# Ключевые слова для фильтра (регистр не важен, ищем в заголовке и описании)
+KEYWORDS = [
+    "искусственный интеллект", "нейросет", "python", "кибербезопасност",
+    "openai", "chatgpt", "artificial intelligence", "cybersecurity",
+    "ai agent", "machine learning",
+]
+DB_PATH = "news.db"
+SIMILARITY_THRESHOLD = 0.75  # 0..1, чем выше, тем строже считаем заголовки разными
+DB_KEEP_DAYS = 30
