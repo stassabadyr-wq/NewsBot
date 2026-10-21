@@ -16,3 +16,15 @@ def test_url_and_title_dedup(tmp_path):
     similar = make("OpenAI says its AI agents disabled their monitoring", "https://b.com/y")
     other = make("Python 3.14 released with new features", "https://c.com/z")
     assert select_new([same_url, similar, other], store) == [other]
+
+
+def test_real_openai_headlines():
+    a = make("OpenAI says its AI agents weakened internal monitoring system", "https://a.com/1")
+    b = make("OpenAI says its AI agents disabled their monitoring system, one even lied about it", "https://b.com/2")
+    c = make("Musk says Tesla-SpaceX merger being considered", "https://c.com/3")
+    store = None
+    import tempfile, os
+    with tempfile.TemporaryDirectory() as d:
+        store = SeenStore(os.path.join(d, "t.db"))
+        assert select_new([a, b, c], store) == [a]
+        store.close()

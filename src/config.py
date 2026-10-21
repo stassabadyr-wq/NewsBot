@@ -32,3 +32,5 @@ KEYWORDS = [
 DB_PATH = "news.db"
 SIMILARITY_THRESHOLD = 0.75  # 0..1, чем выше, тем строже считаем заголовки разными
 DB_KEEP_DAYS = 30
+
+TOKEN_OVERLAP_THRESHOLD = 0.6  # доля общих значимых слов относительно более короткого заголовка

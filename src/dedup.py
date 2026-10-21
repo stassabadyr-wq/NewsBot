@@ -7,6 +7,14 @@ from urllib.parse import urlsplit, urlunsplit
 from src import config
 from src.news_client import Article
 
+SHORT_KEYWORDS = re.compile(r"\b(ai|ии|llm|gpt)\b", re.IGNORECASE)
+EXTRA_KEYWORDS = ("кибератак",)
+STOPWORDS = {
+    "the", "and", "for", "with", "its", "their", "that", "this", "from", "about",
+    "one", "even", "now", "will", "has", "have", "are", "was", "says", "said",
+    "что", "как", "для", "над", "про", "при", "его", "это", "они", "или",
+}
+
 
 def normalize_url(url: str) -> str:
     """Убираем параметры отслеживания, фрагмент и хвостовой слэш."""
@@ -21,9 +29,26 @@ def normalize_title(title: str) -> str:
     return re.sub(r"\s+", " ", title).strip()
 
 
+def tokens(normalized_title: str) -> set[str]:
+    return {w for w in normalized_title.split() if len(w) > 2 and w not in STOPWORDS}
+
+
+def titles_similar(a: str, b: str) -> bool:
+    """a и b уже нормализованы."""
+    if SequenceMatcher(None, a, b).ratio() >= config.SIMILARITY_THRESHOLD:
+        return True
+    ta, tb = tokens(a), tokens(b)
+    smallest = min(len(ta), len(tb))
+    if smallest < 4:
+        return False
+    return len(ta & tb) / smallest >= config.TOKEN_OVERLAP_THRESHOLD
+
+
 def matches_keywords(article: Article) -> bool:
-    text = f"{article.title} {article.description}".lower()
-    return any(kw in text for kw in config.KEYWORDS)
+    title = article.title.lower()
+    if any(kw in title for kw in config.KEYWORDS + list(EXTRA_KEYWORDS)):
+        return True
+    return bool(SHORT_KEYWORDS.search(article.title))
 
 
 class SeenStore:
@@ -42,13 +67,11 @@ class SeenStore:
 
     def is_duplicate(self, article: Article) -> bool:
         url = normalize_url(article.url)
-        row = self.conn.execute("SELECT 1 FROM sent WHERE url = ?", (url,)).fetchone()
-        if row:
+        if self.conn.execute("SELECT 1 FROM sent WHERE url = ?", (url,)).fetchone():
             return True
         new_title = normalize_title(article.title)
         for (old_title,) in self.conn.execute("SELECT title FROM sent"):
-            ratio = SequenceMatcher(None, new_title, old_title).ratio()
-            if ratio >= config.SIMILARITY_THRESHOLD:
+            if titles_similar(new_title, old_title):
                 return True
         return False
 
@@ -77,10 +100,7 @@ def select_new(articles: list[Article], store: SeenStore) -> list[Article]:
         if store.is_duplicate(a):
             continue
         title = normalize_title(a.title)
-        if any(
-            SequenceMatcher(None, title, t).ratio() >= config.SIMILARITY_THRESHOLD
-            for t in batch_titles
-        ):
+        if any(titles_similar(title, t) for t in batch_titles):
             continue
         batch_titles.append(title)
         result.append(a)
