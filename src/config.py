@@ -14,3 +14,11 @@ def require(name: str, value: str) -> str:
     if not value:
         raise RuntimeError(f"Переменная {name} не заполнена в файле .env")
     return value
+
+
+# Поисковые запросы по языкам (синтаксис GNews: фразы в кавычках, OR между словами)
+SEARCH_QUERIES = {
+    "ru": '"искусственный интеллект" OR Python OR кибербезопасность OR OpenAI',
+    "en": '"artificial intelligence" OR Python OR cybersecurity OR OpenAI',
+}
+MAX_ARTICLES_PER_REQUEST = 10
