@@ -34,3 +34,6 @@ SIMILARITY_THRESHOLD = 0.75  # 0..1, чем выше, тем строже счи
 DB_KEEP_DAYS = 30
 
 TOKEN_OVERLAP_THRESHOLD = 0.6  # доля общих значимых слов относительно более короткого заголовка
+
+MAX_POSTS_PER_RUN = 5     # максимум публикаций за один запуск
+POST_DELAY_SECONDS = 3    # пауза между сообщениями в канал
