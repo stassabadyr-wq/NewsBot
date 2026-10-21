@@ -6,7 +6,7 @@ from telegram.error import RetryAfter, TelegramError
 
 from src import config
 from src.dedup import SeenStore, select_new
-from src.formatter import format_article
+from src.formatter import build_text
 from src.news_client import Article, NewsApiError, search_news
 
 
@@ -40,7 +40,8 @@ async def publish(items: list[Article], store: SeenStore) -> None:
     async with Bot(token) as bot:
         for a in items:
             try:
-                await send_with_retry(bot, channel, format_article(a))
+                text = await asyncio.to_thread(build_text, a)
+                await send_with_retry(bot, channel, text)
             except TelegramError as e:
                 # Не помечаем как отправленное: попробуем в следующий запуск
                 print(f"Не отправлено ({a.title[:50]}...): {e}")
@@ -75,3 +76,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
