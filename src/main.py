@@ -7,6 +7,7 @@ from telegram.error import RetryAfter, TelegramError
 from src import config
 from src.dedup import SeenStore, select_new
 from src.formatter import build_text
+from src.quiet import is_quiet_time
 from src.news_client import Article, NewsApiError, search_news
 
 
@@ -55,9 +56,13 @@ async def publish(items: list[Article], store: SeenStore) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="NewsBot")
+    parser.add_argument("--force", action="store_true", help="игнорировать ночную паузу")
     parser.add_argument("--dry-run", action="store_true",
                         help="показать, что было бы отправлено, ничего не публикуя")
     args = parser.parse_args()
+    if not args.dry_run and not args.force and is_quiet_time():
+        print("Ночная пауза, пропускаем запуск")
+        return
 
     store = SeenStore()
     try:
@@ -76,4 +81,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
 

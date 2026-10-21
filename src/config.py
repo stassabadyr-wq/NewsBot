@@ -39,3 +39,8 @@ MAX_POSTS_PER_RUN = 2     # максимум публикаций за один 
 POST_DELAY_SECONDS = 3    # пауза между сообщениями в канал
 
 MYMEMORY_EMAIL = os.getenv("MYMEMORY_EMAIL", "").strip()
+
+# Ночная пауза (по московскому времени, UTC+3, без перехода на летнее время)
+QUIET_START_HOUR = 0
+QUIET_END_HOUR = 8
+TIMEZONE_OFFSET_HOURS = 3
